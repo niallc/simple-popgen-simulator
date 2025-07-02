@@ -87,4 +87,57 @@ def test_fitness_function_signature_enforcement():
     with pytest.raises(ValueError):
         Population(size=3, genome_length=4, fitness_function=bad_fitness3)
 
+def test_evolve_sexual_population_size_and_references():
+    pop = Population(size=11, genome_length=6)
+    new_pop = pop.evolve_sexual(mutation_rate=0.0)
+    assert len(new_pop.genomes) == 11
+    for g_old, g_new in zip(pop.genomes, new_pop.genomes):
+        assert g_old is not g_new
+
+def test_evolve_sexual_offspring_alleles_from_parents():
+    pop = Population(size=6, genome_length=8)
+    # Set up three pairs of parents with distinct sequences
+    for i, genome in enumerate(pop.genomes):
+        Genome.set_sequence(genome, [i % 2] * 8)
+    new_pop = pop.evolve_sexual(mutation_rate=0.0)
+    # Each offspring's alleles should match one of the two parents at each position
+    parent_sequences = [g.sequence for g in pop.genomes]
+    for child in new_pop.genomes:
+        assert any(np.all(child.sequence == parent_seq) for parent_seq in parent_sequences) or \
+            all(any(child.sequence[j] == parent_seq[j] for parent_seq in parent_sequences) for j in range(8))
+
+def test_evolve_sexual_with_neutral_fitness():
+    def neutral_fitness(pop):
+        return np.ones(len(pop.genomes))
+    pop = Population(size=10, genome_length=5, fitness_function=neutral_fitness)
+    new_pop = pop.evolve_sexual(mutation_rate=0.0)
+    assert len(new_pop.genomes) == 10
+    # TODO: Statistical test for parent selection uniformity
+
+def test_evolve_sexual_parent_selection_uniformity():
+    pop_size = 6
+    genome_length = 8
+    n_generations = 100
+    parent_counts = np.zeros(pop_size)
+    def neutral_fitness(pop):
+        return np.ones(len(pop.genomes))
+    pop = Population(size=pop_size, genome_length=genome_length, fitness_function=neutral_fitness)
+    for _ in range(n_generations):
+        fitnesses = pop.fitness().astype(float)
+        probs = np.ones(pop_size) / pop_size
+        n = pop_size
+        for _ in range(n // 2):
+            parent1_idx = np.random.choice(n, p=probs)
+            parent2_idx = np.random.choice(n, p=probs)
+            parent_counts[parent1_idx] += 1
+            parent_counts[parent2_idx] += 1
+        if n % 2 == 1:
+            parent1_idx = np.random.choice(n, p=probs)
+            parent2_idx = np.random.choice(n, p=probs)
+            parent_counts[parent1_idx] += 1
+            parent_counts[parent2_idx] += 1
+    expected = np.ones(pop_size) * (parent_counts.sum() / pop_size)
+    chi2, p = chisquare(parent_counts, expected)
+    assert p > 0.0001, f"Parent selection not uniform (p={p:.5g}). This is a statistical test and may rarely fail by chance."
+
 # TODO: Test for neutral drift and heterozygosity decay once simulation loop is implemented 
