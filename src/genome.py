@@ -2,7 +2,7 @@ import numpy as np
 
 class Genome:
     def __init__(self, genome_length):
-        self.sequence = np.random.randint(0, 2, size=genome_length, dtype=np.int8) 
+        self.sequence = np.random.randint(0, 2, size=genome_length, dtype=np.int8)
 
     def mutate(self, mutation_rate):
         mask = np.random.rand(self.sequence.size) < mutation_rate
@@ -22,19 +22,3 @@ class Genome:
     @staticmethod
     def set_sequence(genome, sequence):
         genome.sequence = np.array(sequence, dtype=np.int8) 
-
-    def __init__(self, size, genome_length, fitness_function=None):
-        """
-        Initialize a population.
-        
-        Args:
-            size: Number of individuals in the population
-            genome_length: Length of each genome
-            fitness_function: Function to calculate fitness. If None, uses additive fitness.
-                             Must accept a Population instance and return numpy array.
-        
-        Note:
-            Using fitness_function=None (default) is fine for tests and simple cases.
-            For production code, consider explicitly specifying your fitness function
-            to make the behavior clear and avoid potential confusion.
-        """ 
