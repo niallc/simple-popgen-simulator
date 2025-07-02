@@ -2,6 +2,7 @@ import numpy as np
 from src.population import Population
 from src.genome import Genome
 import pytest
+from scipy.stats import chisquare
 
 def test_population_creation():
     pop_size = 5
@@ -49,22 +50,22 @@ def test_no_shared_references_after_evolution():
     for g_old, g_new in zip(pop.genomes, new_pop.genomes):
         assert g_old is not g_new
 
-def test_crossover_point_distribution():
+def test_crossover_point_uniformity():
     genome_length = 10
     g1 = Genome(genome_length=genome_length)
     g2 = Genome(genome_length=genome_length)
     Genome.set_sequence(g1, [0]*genome_length)
     Genome.set_sequence(g2, [1]*genome_length)
     n_samples = 1000
-    crossover_points = set()
+    counts = np.zeros(genome_length-1)
     for _ in range(n_samples):
         child = g1.crossover(g2)
-        # Find the first index where child switches from 0 to 1
         switch_indices = np.where(child.sequence != g1.sequence)[0]
         if len(switch_indices) > 0:
-            crossover_points.add(switch_indices[0])
-    # Crossover point should be distributed across the genome (not always at the same place)
-    assert len(crossover_points) > 1
+            counts[switch_indices[0]-1] += 1
+    expected = np.ones(genome_length-1) * (n_samples / (genome_length-1))
+    chi2, p = chisquare(counts, expected)
+    assert p > 0.0001, f"Crossover points not uniform (p={p:.5g}). This is a statistical test and may rarely fail by chance."
 
 def test_fitness_function_signature_enforcement():
     # Not callable
