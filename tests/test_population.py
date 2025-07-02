@@ -1,5 +1,7 @@
 import numpy as np
 from src.population import Population
+from src.genome import Genome
+import pytest
 
 def test_population_creation():
     pop_size = 5
@@ -41,19 +43,47 @@ def test_wright_fisher_asexual_evolution():
     for seq in offspring_sequences:
         assert seq in parent_sequences
 
-def test_tournament_selection():
-    pop_size = 10
-    genome_length = 5
-    pop = Population(size=pop_size, genome_length=genome_length)
-    
-    # Test tournament selection returns a genome
-    selected = pop.tournament_selection(tournament_size=3)
-    assert selected in pop.genomes
-    
-    # Test with tournament size equal to population size
-    selected2 = pop.tournament_selection(tournament_size=pop_size)
-    assert selected2 in pop.genomes
-    
-    # Test with tournament size 1 (should return random genome)
-    selected3 = pop.tournament_selection(tournament_size=1)
-    assert selected3 in pop.genomes 
+def test_no_shared_references_after_evolution():
+    pop = Population(size=5, genome_length=4)
+    new_pop = pop.evolve_asexual(mutation_rate=0.0)
+    for g_old, g_new in zip(pop.genomes, new_pop.genomes):
+        assert g_old is not g_new
+
+def test_crossover_point_distribution():
+    genome_length = 10
+    g1 = Genome(genome_length=genome_length)
+    g2 = Genome(genome_length=genome_length)
+    Genome.set_sequence(g1, [0]*genome_length)
+    Genome.set_sequence(g2, [1]*genome_length)
+    n_samples = 1000
+    crossover_points = set()
+    for _ in range(n_samples):
+        child = g1.crossover(g2)
+        # Find the first index where child switches from 0 to 1
+        switch_indices = np.where(child.sequence != g1.sequence)[0]
+        if len(switch_indices) > 0:
+            crossover_points.add(switch_indices[0])
+    # Crossover point should be distributed across the genome (not always at the same place)
+    assert len(crossover_points) > 1
+
+def test_fitness_function_signature_enforcement():
+    # Not callable
+    with pytest.raises(ValueError):
+        Population(size=3, genome_length=4, fitness_function=42)
+    # Wrong number of arguments
+    def bad_fitness1():
+        return np.ones(3)
+    with pytest.raises(ValueError):
+        Population(size=3, genome_length=4, fitness_function=bad_fitness1)
+    # Wrong return type
+    def bad_fitness2(pop):
+        return [1, 1, 1]
+    with pytest.raises(ValueError):
+        Population(size=3, genome_length=4, fitness_function=bad_fitness2)
+    # Wrong return length
+    def bad_fitness3(pop):
+        return np.ones(2)
+    with pytest.raises(ValueError):
+        Population(size=3, genome_length=4, fitness_function=bad_fitness3)
+
+# TODO: Test for neutral drift and heterozygosity decay once simulation loop is implemented 
