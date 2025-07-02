@@ -1,12 +1,8 @@
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
-
 import numpy as np
 import pytest
-from simulation import Simulation
-from population import Population
-from genome import Genome
+from src.simulation import Simulation
+from src.population import Population
+from src.genome import Genome
 
 
 def neutral_fitness(population):

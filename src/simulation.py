@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from population import Population
+from src.population import Population
 
 class Simulation:
     def __init__(self, *,

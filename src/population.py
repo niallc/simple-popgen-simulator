@@ -1,5 +1,5 @@
 import numpy as np
-from genome import Genome
+from src.genome import Genome
 
 class Population:
     def __init__(self, size, genome_length, fitness_function=None, random_seed=None):
