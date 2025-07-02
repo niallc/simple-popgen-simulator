@@ -59,4 +59,36 @@ class Population:
             new_genomes.append(child)
         new_pop = Population(size=len(self.genomes), genome_length=len(self.genomes[0].sequence), fitness_function=self.fitness_function)
         new_pop.genomes = new_genomes
+        return new_pop
+
+    def evolve_sexual(self, mutation_rate):
+        fitnesses = self.fitness().astype(float)
+        if np.sum(fitnesses) == 0:
+            probs = np.ones(len(self.genomes)) / len(self.genomes)
+        else:
+            probs = fitnesses / np.sum(fitnesses)
+        new_genomes = []
+        n = len(self.genomes)
+        for _ in range(n // 2):
+            parent1_idx = np.random.choice(n, p=probs)
+            parent2_idx = np.random.choice(n, p=probs)
+            parent1 = self.genomes[parent1_idx]
+            parent2 = self.genomes[parent2_idx]
+            # Each pair produces 2 offspring
+            child1 = parent1.crossover(parent2)
+            child2 = parent2.crossover(parent1)
+            child1.mutate(mutation_rate)
+            child2.mutate(mutation_rate)
+            new_genomes.extend([child1, child2])
+        # If n is odd, add one more offspring
+        if len(new_genomes) < n:
+            parent1_idx = np.random.choice(n, p=probs)
+            parent2_idx = np.random.choice(n, p=probs)
+            parent1 = self.genomes[parent1_idx]
+            parent2 = self.genomes[parent2_idx]
+            child = parent1.crossover(parent2)
+            child.mutate(mutation_rate)
+            new_genomes.append(child)
+        new_pop = Population(size=n, genome_length=self.genomes[0].sequence.size, fitness_function=self.fitness_function)
+        new_pop.genomes = new_genomes
         return new_pop 
