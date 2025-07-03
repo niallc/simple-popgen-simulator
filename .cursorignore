@@ -1,0 +1,12 @@
+# .cursorignore
+
+# Environment files containing secrets
+.env*
+
+# Private keys
+*.pem
+*.key
+
+# Common directories for credentials and sensitive config
+config/
+credentials/

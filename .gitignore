@@ -1,0 +1,8 @@
+SideWork/
+venv/
+__pycache__/
+
+*.csv
+*.pyc
+*.ipynb
+.DS_Store
