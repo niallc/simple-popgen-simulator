@@ -25,6 +25,7 @@ analysis/
 - **`sexual_vs_asexual_analysis.py`**: Main script for running comprehensive sexual vs asexual reproduction comparisons
 - **`import_utils.py`**: Utilities for robust import handling across different directory structures
 - **`quick_test.py`**: Quick testing and validation scripts
+- **`check_file_versions.py`**: Utility to check existing file versions and see what the next version would be
 
 ### Notebooks (`notebooks/`)
 - Jupyter notebooks for interactive analysis and visualization
@@ -68,6 +69,37 @@ The `sexual_vs_asexual_analysis.py` script automatically generates descriptive f
 `sexual_vs_asexual_{fitness_regime}_{pop_size}_gen{genome_length}_mut{mutation_rate}_gens{generations}_runs{n_runs}_{timestamp}.csv`
 
 This prevents file clobbering and makes it easy to identify the parameters used for each simulation run.
+
+## File Versioning System
+
+The analysis scripts include an **anti-clobbering system** that automatically prevents overwriting existing files:
+
+### How It Works
+1. **Base File Check**: If the intended filename doesn't exist, it's used as-is
+2. **Version Detection**: If the file exists, the system looks for existing versions (`_v2`, `_v3`, etc.)
+3. **Next Version**: Automatically creates the next available version number
+4. **Fallback**: If directory access fails, adds a timestamp suffix
+
+### Examples
+- `results.csv` (doesn't exist) → saves as `results.csv`
+- `results.csv` (exists) → saves as `results_v2.csv`
+- `results.csv` and `results_v2.csv` exist → saves as `results_v3.csv`
+
+### Version Checking
+Use the utility script to check existing versions:
+```bash
+# Check a specific file
+python scripts/check_file_versions.py data/your_file.csv
+
+# Check the default analysis file
+python scripts/check_file_versions.py data/sexual_vs_asexual/sexual_vs_asexual_results.csv
+```
+
+### Benefits
+- **No data loss**: Never accidentally overwrite important results
+- **Clear history**: Easy to see the progression of experiments
+- **Automatic**: No manual intervention required
+- **Robust**: Handles edge cases and permission errors gracefully
 
 ## Import Handling
 

@@ -15,6 +15,7 @@ import time
 from typing import Dict, List, Tuple, Any
 from datetime import datetime
 import os
+import re
 
 # Robust import setup
 try:
@@ -374,6 +375,116 @@ def generate_filename(analyzer, fitness_name: str) -> str:
     
     return filename
 
+def get_versioned_filename(base_path: str) -> str:
+    """
+    Generate a versioned filename to prevent clobbering existing files.
+    
+    Args:
+        base_path: The intended file path (e.g., "data/file.csv")
+        
+    Returns:
+        str: A unique filename that won't clobber existing files
+        
+    Examples:
+        - If "data/file.csv" doesn't exist → returns "data/file.csv"
+        - If "data/file.csv" exists → returns "data/file_v2.csv"
+        - If "data/file.csv" and "data/file_v2.csv" exist → returns "data/file_v3.csv"
+    """
+    # Check if the base file exists
+    if not os.path.exists(base_path):
+        return base_path
+    
+    # Extract directory, filename, and extension
+    directory = os.path.dirname(base_path)
+    filename = os.path.basename(base_path)
+    name, ext = os.path.splitext(filename)
+    
+    # Pattern to match versioned files: name_vN.ext
+    version_pattern = re.compile(rf'^{re.escape(name)}_v(\d+){re.escape(ext)}$')
+    
+    # Find all existing versioned files
+    existing_versions = []
+    if os.path.exists(directory):
+        try:
+            for file in os.listdir(directory):
+                match = version_pattern.match(file)
+                if match:
+                    version_num = int(match.group(1))
+                    existing_versions.append(version_num)
+        except (OSError, PermissionError) as e:
+            print(f"Warning: Could not read directory {directory}: {e}")
+            # Fall back to adding timestamp to avoid clobbering
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            return f"{base_path}.{timestamp}"
+    
+    # Find the next version number
+    if existing_versions:
+        next_version = max(existing_versions) + 1
+    else:
+        next_version = 2  # Start with v2 since v1 is the base file
+    
+    # Construct the new filename
+    versioned_filename = f"{name}_v{next_version}{ext}"
+    versioned_path = os.path.join(directory, versioned_filename)
+    
+    return versioned_path
+
+def list_file_versions(base_path: str) -> None:
+    """
+    List all existing versions of a file and show what the next version would be.
+    
+    Args:
+        base_path: The base file path to check for versions
+    """
+    directory = os.path.dirname(base_path)
+    filename = os.path.basename(base_path)
+    name, ext = os.path.splitext(filename)
+    
+    print(f"📁 File version analysis for: {base_path}")
+    
+    # Check if base file exists
+    if os.path.exists(base_path):
+        print(f"✅ Base file exists: {filename}")
+    else:
+        print(f"❌ Base file does not exist: {filename}")
+    
+    # Pattern to match versioned files
+    version_pattern = re.compile(rf'^{re.escape(name)}_v(\d+){re.escape(ext)}$')
+    
+    # Find all existing versioned files
+    existing_versions = []
+    if os.path.exists(directory):
+        try:
+            for file in os.listdir(directory):
+                match = version_pattern.match(file)
+                if match:
+                    version_num = int(match.group(1))
+                    existing_versions.append(version_num)
+        except (OSError, PermissionError) as e:
+            print(f"❌ Could not read directory {directory}: {e}")
+            return
+    
+    if existing_versions:
+        existing_versions.sort()
+        print(f"📋 Existing versions: {existing_versions}")
+        print(f"📋 Versioned files:")
+        for v in existing_versions:
+            versioned_file = f"{name}_v{v}{ext}"
+            versioned_path = os.path.join(directory, versioned_file)
+            if os.path.exists(versioned_path):
+                size = os.path.getsize(versioned_path)
+                mtime = datetime.fromtimestamp(os.path.getmtime(versioned_path)).strftime("%Y-%m-%d %H:%M")
+                print(f"   v{v}: {versioned_file} ({size:,} bytes, {mtime})")
+    else:
+        print("📋 No versioned files found")
+    
+    # Show what the next version would be
+    next_version = get_versioned_filename(base_path)
+    if next_version != base_path:
+        print(f"🔄 Next version would be: {os.path.basename(next_version)}")
+    else:
+        print(f"🔄 No versioning needed (file doesn't exist)")
+
 def main():
     """Main function to run the analysis."""
     
@@ -412,7 +523,17 @@ def main():
     
     # Generate descriptive filename
     filename = generate_filename(analyzer, "comprehensive")
-    output_file = os.path.join(output_dir, filename)
+    base_output_file = os.path.join(output_dir, filename)
+    
+    # Get versioned filename to prevent clobbering
+    output_file = get_versioned_filename(base_output_file)
+    
+    # Show versioning information if needed
+    if output_file != base_output_file:
+        print(f"\n📁 File versioning:")
+        print(f"   Base filename: {filename}")
+        print(f"   Versioned filename: {os.path.basename(output_file)}")
+        print(f"   This prevents clobbering existing files")
     
     # Save results
     df_combined.to_csv(output_file, index=False)
