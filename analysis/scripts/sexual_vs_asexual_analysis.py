@@ -36,19 +36,23 @@ archive_dir = os.path.join(project_root, 'analysis', 'data', 'archive')
 os.makedirs(data_dir, exist_ok=True)
 os.makedirs(archive_dir, exist_ok=True)
 
-# Define fitness functions
-def neutral_fitness(population):
-    """True neutral evolution: all individuals have equal fitness"""
+# Define fitness functions for the new two-function approach
+def neutral_reproduction(population):
+    """Neutral evolution: all individuals have equal reproductive fitness"""
     return np.ones(len(population.genomes))
 
-def weak_selection(population):
-    """Weak selection: fitness = 1 + s * (number of 1s)"""
+def weak_selection_reproduction(population):
+    """Weak selection on reproductive fitness: fitness = 1 + s * (number of 1s)"""
     s = 0.05  # weak selection coefficient
     base_fitness = np.array([np.sum(g.sequence) for g in population.genomes])
     return 1.0 + s * base_fitness
 
-def additive_fitness(population):
-    """Additive selection: fitness = sum of 1s in genome"""
+def additive_reproduction(population):
+    """Additive selection on reproductive fitness: fitness = sum of 1s in genome"""
+    return np.array([np.sum(g.sequence) for g in population.genomes])
+
+def genome_complexity_analysis(population):
+    """Analysis trait: genome complexity (sum of 1s) - useful for measuring drift"""
     return np.array([np.sum(g.sequence) for g in population.genomes])
 
 class SexualVsAsexualAnalyzer:
@@ -92,18 +96,19 @@ class SexualVsAsexualAnalyzer:
             'asexual': []
         }
         
-    def run_single_comparison(self, run_id: int, fitness_function) -> Tuple[Dict, Dict]:
+    def run_single_comparison(self, run_id: int, reproductive_fitness_function, analysis_trait_function=None) -> Tuple[Dict, Dict]:
         """
         Run a single comparison between sexual and asexual reproduction.
         
         Args:
             run_id: Run identifier for seed generation
-            fitness_function: Fitness function to use
+            reproductive_fitness_function: Function that drives selection
+            analysis_trait_function: Function for measuring traits (default: additive fitness)
             
         Returns:
             Tuple of (sexual_results, asexual_results)
         """
-        # Use different seeds for each run but keep them close for fair comparison
+        # Use different seeds for each run but keep them systematic for repeatable comparisons
         sexual_seed = self.base_seed + run_id * 2
         asexual_seed = self.base_seed + run_id * 2 + 1
         
@@ -118,7 +123,8 @@ class SexualVsAsexualAnalyzer:
         sexual_sim = Simulation(
             **sexual_params, 
             mode='sexual', 
-            fitness_function=fitness_function
+            reproductive_fitness_function=reproductive_fitness_function,
+            analysis_trait_function=analysis_trait_function
         )
         sexual_sim.run()
         sexual_results = sexual_sim.get_results()
@@ -127,7 +133,8 @@ class SexualVsAsexualAnalyzer:
         asexual_sim = Simulation(
             **asexual_params, 
             mode='asexual', 
-            fitness_function=fitness_function
+            reproductive_fitness_function=reproductive_fitness_function,
+            analysis_trait_function=analysis_trait_function
         )
         asexual_sim.run()
         asexual_results = asexual_sim.get_results()
@@ -140,25 +147,27 @@ class SexualVsAsexualAnalyzer:
         return fitness_series / initial_fitness
     
     def extract_decile_fitness(self, results: Dict) -> List[float]:
-        """Extract fitness values at decile points and normalize."""
-        fitness_series = results['mean_fitness']
-        normalized_fitness = self.normalize_fitness(fitness_series)
+        """Extract analysis trait values at decile points and normalize."""
+        # Use mean_analysis_trait instead of mean_fitness
+        trait_series = results['mean_analysis_trait']
+        normalized_trait = self.normalize_fitness(trait_series)
         
         decile_fitness = []
         for point in self.decile_points:
-            if point < len(normalized_fitness):
-                decile_fitness.append(normalized_fitness.iloc[point])
+            if point < len(normalized_trait):
+                decile_fitness.append(normalized_trait.iloc[point])
             else:
-                decile_fitness.append(normalized_fitness.iloc[-1])
+                decile_fitness.append(normalized_trait.iloc[-1])
         
         return decile_fitness
     
-    def run_comprehensive_analysis(self, fitness_function, fitness_name: str = "Custom"):
+    def run_comprehensive_analysis(self, reproductive_fitness_function, analysis_trait_function=None, fitness_name: str = "Custom"):
         """
         Run comprehensive analysis comparing sexual vs. asexual reproduction.
         
         Args:
-            fitness_function: Fitness function to use
+            reproductive_fitness_function: Function that drives selection
+            analysis_trait_function: Function for measuring traits (default: additive fitness)
             fitness_name: Name of the fitness regime for reporting
         """
         print(f"\n{'='*80}")
@@ -184,7 +193,7 @@ class SexualVsAsexualAnalyzer:
                 print(f"  Completed {run_id + 1}/{self.n_runs} runs...")
             
             try:
-                sexual_results, asexual_results = self.run_single_comparison(run_id, fitness_function)
+                sexual_results, asexual_results = self.run_single_comparison(run_id, reproductive_fitness_function, analysis_trait_function)
                 
                 # Extract decile fitness values
                 sexual_deciles = self.extract_decile_fitness(sexual_results)
@@ -495,18 +504,18 @@ def main():
     print("Starting Sexual vs. Asexual Reproduction Analysis")
     print("=" * 80)
     
+    # Test with neutral evolution
+    print("\n1. Testing with Neutral Evolution...")
+    df_neutral = analyzer.run_comprehensive_analysis(neutral_reproduction, genome_complexity_analysis, "Neutral Evolution")
+
     # Test with weak selection
-    print("\n1. Testing with Weak Selection...")
-    df_weak = analyzer.run_comprehensive_analysis(weak_selection, "Weak Selection")
+    print("\n2. Testing with Weak Selection...")
+    df_weak = analyzer.run_comprehensive_analysis(weak_selection_reproduction, genome_complexity_analysis, "Weak Selection")
     
     # Test with additive selection
-    print("\n2. Testing with Additive Selection...")
-    df_additive = analyzer.run_comprehensive_analysis(additive_fitness, "Additive Selection")
-    
-    # Test with neutral evolution
-    print("\n3. Testing with Neutral Evolution...")
-    df_neutral = analyzer.run_comprehensive_analysis(neutral_fitness, "Neutral Evolution")
-    
+    print("\n3. Testing with Additive Selection...")
+    df_additive = analyzer.run_comprehensive_analysis(additive_reproduction, genome_complexity_analysis, "Additive Selection")
+        
     # Combine all results
     df_combined = pd.concat([df_weak, df_additive, df_neutral], ignore_index=True)
     

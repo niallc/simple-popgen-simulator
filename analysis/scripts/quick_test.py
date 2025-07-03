@@ -13,7 +13,7 @@ project_root = os.path.expanduser("~/Documents/programming/SelectionAndSexualRep
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from sexual_vs_asexual_analysis import SexualVsAsexualAnalyzer, weak_selection
+from sexual_vs_asexual_analysis import SexualVsAsexualAnalyzer, weak_selection_reproduction, genome_complexity_analysis
 
 def quick_test():
     """Run a quick test with just 10 runs."""
@@ -31,7 +31,7 @@ def quick_test():
     print("Running quick test with 10 simulations...")
     
     # Test with weak selection only
-    df = analyzer.run_comprehensive_analysis(weak_selection, "Weak Selection (Quick Test)")
+    df = analyzer.run_comprehensive_analysis(weak_selection_reproduction, genome_complexity_analysis, "Weak Selection (Quick Test)")
     
     print(f"\n✅ Quick test completed!")
     print(f"DataFrame shape: {df.shape}")
