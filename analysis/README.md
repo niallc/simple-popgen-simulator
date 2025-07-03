@@ -23,7 +23,7 @@ analysis/
 
 ### Scripts (`scripts/`)
 - **`sexual_vs_asexual_analysis.py`**: Main script for running comprehensive sexual vs asexual reproduction comparisons
-- **`import_utils.py`**: Utilities for robust import handling across different directory structures
+- **`import_utils.py`**: ~~Utilities for robust import handling across different directory structures~~ (removed - replaced with simple hardcoded imports)
 - **`quick_test.py`**: Quick testing and validation scripts
 - **`check_file_versions.py`**: Utility to check existing file versions and see what the next version would be
 
@@ -103,7 +103,7 @@ python scripts/check_file_versions.py ../data/sexual_vs_asexual/sexual_vs_asexua
 
 ## Import Handling
 
-The scripts use robust import utilities (`import_utils.py`) that automatically detect the project structure and set up imports correctly, regardless of where the script is run from.
+The scripts use a simple, hardcoded project root approach for reliable imports that works consistently regardless of where the script is run from.
 
 ## Version Control
 

@@ -3,6 +3,16 @@
 Quick test script for sexual vs. asexual analysis
 """
 
+import sys
+import os
+
+# Simple, hardcoded project root - clean and obvious
+project_root = os.path.expanduser("~/Documents/programming/SelectionAndSexualReproduction")
+
+# Add project root to Python path for imports
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from sexual_vs_asexual_analysis import SexualVsAsexualAnalyzer, weak_selection
 
 def quick_test():

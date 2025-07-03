@@ -83,36 +83,39 @@ Jupyter notebooks have import issues when run from different directories. Runnin
 ### The Solution
 We provide multiple robust import patterns:
 
-#### Option 1: Use Import Utility (Recommended)
+#### Option 1: Use Simple Hardcoded Import (Recommended)
 ```python
-from import_utils import quick_setup
-Simulation = quick_setup()
+import sys
+import os
+
+# Simple, hardcoded project root
+project_root = os.path.expanduser("~/Documents/programming/SelectionAndSexualReproduction")
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from src.simulation import Simulation
 ```
 
-#### Option 2: Robust Try-Catch Pattern
+#### Option 2: Legacy Try-Catch Pattern (No longer needed)
 ```python
+# This complex pattern is no longer needed with the simple hardcoded approach
 try:
-    from import_utils import quick_setup
-    Simulation = quick_setup()
+    from src.simulation import Simulation
 except ImportError:
-    try:
-        from src.simulation import Simulation
-    except ImportError:
-        import sys, os
-        if os.path.exists('src'):
-            sys.path.insert(0, os.getcwd())
-        elif os.path.exists('../src'):
-            sys.path.insert(0, os.path.dirname(os.getcwd()))
-        from src.simulation import Simulation
+    import sys, os
+    if os.path.exists('src'):
+        sys.path.insert(0, os.getcwd())
+    elif os.path.exists('../src'):
+        sys.path.insert(0, os.path.dirname(os.getcwd()))
+    from src.simulation import Simulation
 ```
 
 #### Option 3: Run from Specific Directory
 Always `cd` to project root before running notebooks.
 
 ### Files
-- `import_utils.py` - Robust import utility module
 - `notebook_template.ipynb` - Template showing best practices
-- `corrected_simulation_analysis.ipynb` - Full analysis with robust imports
+- `corrected_simulation_analysis.ipynb` - Full analysis with simple imports
 
 ### Requirements
 

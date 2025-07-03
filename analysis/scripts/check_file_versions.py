@@ -8,7 +8,18 @@ Useful for understanding the versioning system before running analysis scripts.
 
 import sys
 import os
+
+# Simple, hardcoded project root - clean and obvious
+project_root = os.path.expanduser("~/Documents/programming/SelectionAndSexualReproduction")
+
+# Add project root to Python path for imports
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from sexual_vs_asexual_analysis import list_file_versions, generate_filename, SexualVsAsexualAnalyzer
+
+# Set up default data directory
+default_data_dir = os.path.join(project_root, 'analysis', 'data', 'sexual_vs_asexual')
 
 def main():
     """Main function to check file versions."""
@@ -27,7 +38,7 @@ def main():
         # Show example with default parameters
         analyzer = SexualVsAsexualAnalyzer()
         example_filename = generate_filename(analyzer, "comprehensive")
-        example_path = f"../data/sexual_vs_asexual/{example_filename}"
+        example_path = os.path.join(default_data_dir, example_filename)
         
         print("Example with default parameters:")
         list_file_versions(example_path)
@@ -37,7 +48,7 @@ def main():
         print("  python check_file_versions.py path/to/your/file.csv")
         print()
         print("To check the default analysis file:")
-        print("  python check_file_versions.py ../data/sexual_vs_asexual/sexual_vs_asexual_results.csv")
+        print(f"  python check_file_versions.py {os.path.join(default_data_dir, 'sexual_vs_asexual_results.csv')}")
 
 if __name__ == "__main__":
     main() 

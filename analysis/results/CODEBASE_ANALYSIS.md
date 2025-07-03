@@ -8,7 +8,7 @@ This analysis identifies which files are actively used vs. potentially dead code
 - **Core Library**: All 3 core modules (`genome.py`, `population.py`, `simulation.py`) are actively used
 - **Tests**: All test files are functional and used
 - **Analysis**: Multiple notebooks exist, but only 2 are currently active
-- **Utilities**: `import_utils.py` is actively used, `quick_test.py` is utility code
+- **Utilities**: `quick_test.py` is utility code (import_utils.py removed)
 - **Dead Files**: ✅ **CLEANED UP** - 3 dead files removed
 
 ---
@@ -57,7 +57,7 @@ simulation.py → population.py → genome.py
 |------|---------|--------|-------|
 | `sexual_vs_asexual_analysis.py` | **Main analysis script** - runs 100 simulations | ✅ **ACTIVE** | Primary analysis tool |
 | `sexual_vs_asexual_*.csv` | **Results data** - 6,600 data points | ✅ **ACTIVE** | Output from main analysis (timestamped) |
-| `import_utils.py` | **Import utility** - robust module imports | ✅ **ACTIVE** | Used by analysis scripts |
+| `import_utils.py` | **Import utility** - robust module imports | ❌ **REMOVED** | Replaced with simple hardcoded imports |
 | `quick_test.py` | **Utility script** - quick 10-run tests | ✅ **ACTIVE** | Development/testing tool |
 
 ### ⚠️ **REVIEW NEEDED - Large Notebook**
@@ -100,7 +100,7 @@ simulation.py → population.py → genome.py
    - `sexual_vs_asexual_analysis.py` (main analysis)
    - `test_selection_behavior.py` (tests)
    - `test_randomness_and_variation.py` (tests)
-   - `import_utils.py` (import utility)
+   - ~~`import_utils.py`~~ (import utility - removed)
 
 2. **`Population` class**: Used in 4 files
    - `simulation.py` (core library)
@@ -115,7 +115,7 @@ simulation.py → population.py → genome.py
 
 ### **Analysis Code Usage:**
 
-1. **`import_utils.py`**: Used in 1 file
+1. **`import_utils.py`**: ~~Used in 1 file~~ (removed)
    - `sexual_vs_asexual_analysis.py` (main analysis)
 
 2. **`quick_test.py`**: Standalone utility
@@ -143,7 +143,7 @@ simulation.py → population.py → genome.py
 
 1. **All core library files** (`src/`)
 2. **All test files** (`tests/`)
-3. **Main analysis files** (`sexual_vs_asexual_analysis.py`, `import_utils.py`)
+3. **Main analysis files** (`sexual_vs_asexual_analysis.py`)
 4. **Results data** (`sexual_vs_asexual_*.csv` - timestamped files)
 5. **Documentation** (`README.md`, `glossary.md`, `EvolutionSimulatorPlan.md`)
 6. **Project files** (`requirements.txt`, `.gitignore`, `LICENSE`)
