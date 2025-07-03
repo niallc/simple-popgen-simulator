@@ -17,6 +17,19 @@ from datetime import datetime
 import os
 import re
 
+# Set up paths and try to catch errors
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(script_dir, '..', '..'))
+data_dir = os.path.join(project_root, 'analysis', 'data', 'sexual_vs_asexual')
+
+# Check that project_root is the right directory
+#  1. Check that the project_root directory exists
+#  2. Check that the project_root directory contains (analysis, src, and  test)
+assert os.path.exists(project_root), f"Project root directory does not exist: {project_root}"
+assert os.path.exists(os.path.join(project_root, 'analysis')), f"Project root directory does not contain analysis directory: {project_root}"
+assert os.path.exists(os.path.join(project_root, 'src')), f"Project root directory does not contain src directory: {project_root}"
+assert os.path.exists(os.path.join(project_root, 'test')), f"Project root directory does not contain test directory: {project_root}"
+
 # Robust import setup
 try:
     from import_utils import quick_setup
@@ -518,7 +531,7 @@ def main():
     df_combined = pd.concat([df_weak, df_additive, df_neutral], ignore_index=True)
     
     # Create output directory if it doesn't exist
-    output_dir = "data/sexual_vs_asexual"
+    output_dir = "../data/sexual_vs_asexual"
     os.makedirs(output_dir, exist_ok=True)
     
     # Generate descriptive filename
@@ -536,7 +549,17 @@ def main():
         print(f"   This prevents clobbering existing files")
     
     # Save results
+    # Check that file saving worked and print success message
+    # To do this we need to check that the file exists and is not empty
     df_combined.to_csv(output_file, index=False)
+    if not os.path.exists(output_file):
+        print(f"❌ Error: File {output_file} does not exist")
+        return df_combined
+    if os.path.getsize(output_file) == 0:
+        print(f"❌ Error: File {output_file} is empty")
+        return df_combined
+
+    # Otherwise print success message
     print(f"\n✅ Results saved to: {output_file}")
     print(f"DataFrame shape: {df_combined.shape}")
     

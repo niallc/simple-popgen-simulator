@@ -92,7 +92,7 @@ Use the utility script to check existing versions:
 python scripts/check_file_versions.py data/your_file.csv
 
 # Check the default analysis file
-python scripts/check_file_versions.py data/sexual_vs_asexual/sexual_vs_asexual_results.csv
+python scripts/check_file_versions.py ../data/sexual_vs_asexual/sexual_vs_asexual_results.csv
 ```
 
 ### Benefits
