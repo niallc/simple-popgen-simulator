@@ -27,10 +27,13 @@ except ImportError:
         import os
         current_dir = os.getcwd()
         
+        # Try different possible locations for src/
         if os.path.exists('src'):
             sys.path.insert(0, current_dir)
         elif os.path.exists('../src'):
             sys.path.insert(0, os.path.dirname(current_dir))
+        elif os.path.exists('../../src'):
+            sys.path.insert(0, os.path.dirname(os.path.dirname(current_dir)))
         else:
             raise ImportError("Cannot locate src/ directory")
         
@@ -370,7 +373,7 @@ def main():
     df_combined = pd.concat([df_weak, df_additive, df_neutral], ignore_index=True)
     
     # Save results
-    output_file = "sexual_vs_asexual_results.csv"
+    output_file = "data/sexual_vs_asexual/sexual_vs_asexual_results.csv"
     df_combined.to_csv(output_file, index=False)
     print(f"\n✅ Results saved to: {output_file}")
     print(f"DataFrame shape: {df_combined.shape}")

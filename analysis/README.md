@@ -1,121 +1,83 @@
-# Evolution Simulation Analysis
+# Analysis Directory
 
-This directory contains comprehensive analysis tools for the evolution simulation project.
+This directory contains all analysis-related files for the evolution simulator project, organized into a clear structure for better file management and reproducibility.
 
-## Main Analysis Notebook: `corrected_simulation_analysis.ipynb`
-
-### Features
-
-1. **Comprehensive Scenario Comparison**
-   - 6 scenarios: 3 selection regimes × 2 reproduction modes
-   - True neutral evolution vs. additive selection vs. weak selection
-   - Asexual vs. sexual reproduction
-
-2. **Theoretical Validation**
-   - Population genetics predictions for heterozygosity decay
-   - Correlation analysis between observed and theoretical values
-   - Validates simulation accuracy against known theory
-
-3. **Rich Visualizations**
-   - Fitness evolution comparison plots
-   - Heterozygosity analysis with theoretical overlays
-   - Side-by-side reproduction mode comparisons
-
-4. **Comprehensive Summary Tables**
-   - Detailed metrics for all scenarios
-   - Fitness changes, heterozygosity retention rates
-   - Easy-to-copy text summaries for further analysis
-
-### Key Insights Captured
-
-- **Selection vs. Neutral**: Proper distinction between true neutral evolution (equal fitness) and additive selection
-- **Theoretical Fit**: How well simulations match population genetics theory
-- **Reproduction Mode Effects**: Sexual vs. asexual impact on genetic diversity
-- **Selection Strength**: Comparison of different selection intensities
-
-### Usage
-
-```python
-# Run the notebook to get comprehensive analysis including:
-# - All 6 scenario simulations
-# - Theoretical predictions vs. observations
-# - Summary statistics and visualizations
-# - Text-based summaries ready for LLM analysis
-```
-
-### Output Summary Format
-
-The notebook generates detailed text summaries like:
+## Directory Structure
 
 ```
-COMPREHENSIVE EVOLUTION SIMULATION SUMMARY
-==========================================
-
-Scenario             Init Fit Final Fit Fit Change Fit Change %
-Init Het Final Het Het Retention Het Decay Rate
-------------------------------------
-Asexual Neutral      10.22    10.22    +0.00      +0.0%
-0.506    0.506    100.0%       0.0000
-
-[... detailed table for all scenarios ...]
-
-KEY EVOLUTIONARY PATTERNS
-==========================
-1. FITNESS EVOLUTION:
-   • Selection vs. Neutral: ✓ (patterns match expectations)
-2. HETEROZYGOSITY RETENTION:
-   • Sexual maintains more diversity: ✓
-3. THEORETICAL PREDICTIONS:
-   • Simulations match theory: ✓
+analysis/
+├── data/                          # Data files and outputs
+│   ├── sexual_vs_asexual/         # Sexual vs asexual reproduction results
+│   └── archive/                   # Archived data files
+├── notebooks/                     # Jupyter notebooks for analysis
+├── scripts/                       # Python scripts for data generation and analysis
+├── results/                       # Documentation and analysis results
+└── README.md                      # This file
 ```
 
-This format is ideal for:
-- Quick pattern recognition
-- Sharing with collaborators
-- Input to LLMs for further analysis
-- Validation of simulation behavior
+## File Organization
 
-## Import Solutions
+### Data Files (`data/`)
+- **`sexual_vs_asexual/`**: Contains CSV files with simulation results comparing sexual vs asexual reproduction
+- **`archive/`**: For older data files that are no longer actively used
 
-### The Problem
-Jupyter notebooks have import issues when run from different directories. Running from project root vs. analysis/ subdirectory causes different import behaviors.
+### Scripts (`scripts/`)
+- **`sexual_vs_asexual_analysis.py`**: Main script for running comprehensive sexual vs asexual reproduction comparisons
+- **`import_utils.py`**: Utilities for robust import handling across different directory structures
+- **`quick_test.py`**: Quick testing and validation scripts
 
-### The Solution
-We provide multiple robust import patterns:
+### Notebooks (`notebooks/`)
+- Jupyter notebooks for interactive analysis and visualization
+- Each notebook focuses on specific aspects of the simulation results
 
-#### Option 1: Use Import Utility (Recommended)
-```python
-from import_utils import quick_setup
-Simulation = quick_setup()
+### Results (`results/`)
+- **`CODEBASE_ANALYSIS.md`**: Analysis of the codebase structure and usage
+- **`EvolutionSimulatorPlan.md`**: Original project planning document
+- **`glossary.md`**: Terminology and definitions
+- **`README.md`**: Analysis-specific documentation
+
+## Usage
+
+### Running Analysis Scripts
+From the `analysis/` directory:
+```bash
+# Run the main sexual vs asexual analysis
+python scripts/sexual_vs_asexual_analysis.py
+
+# Run quick tests
+python scripts/quick_test.py
 ```
 
-#### Option 2: Robust Try-Catch Pattern
-```python
-try:
-    from import_utils import quick_setup
-    Simulation = quick_setup()
-except ImportError:
-    try:
-        from src.simulation import Simulation
-    except ImportError:
-        import sys, os
-        if os.path.exists('src'):
-            sys.path.insert(0, os.getcwd())
-        elif os.path.exists('../src'):
-            sys.path.insert(0, os.path.dirname(os.getcwd()))
-        from src.simulation import Simulation
+### Working with Notebooks
+From the `analysis/` directory:
+```bash
+# Start Jupyter notebook server
+jupyter notebook notebooks/
 ```
 
-#### Option 3: Run from Specific Directory
-Always `cd` to project root before running notebooks.
+### Data File Naming Convention
+When creating new data files, use descriptive names that include:
+- Key parameters (e.g., `pop100_gen20_mut0.005`)
+- Timestamp (e.g., `2024-01-15_14-30`)
+- Description (e.g., `sexual_vs_asexual_comparison`)
 
-### Files
-- `import_utils.py` - Robust import utility module
-- `notebook_template.ipynb` - Template showing best practices
-- `corrected_simulation_analysis.ipynb` - Full analysis with robust imports
+Example: `sexual_vs_asexual_pop100_gen20_mut0.005_2024-01-15_14-30.csv`
 
-### Requirements
+## Import Handling
 
-- Works from project root or analysis/ subdirectory
-- Compatible with pytest test suite
-- Graceful fallback between import methods 
+The scripts use robust import utilities (`import_utils.py`) that automatically detect the project structure and set up imports correctly, regardless of where the script is run from.
+
+## Version Control
+
+- Data files are typically excluded from version control (see `.gitignore`)
+- Scripts and notebooks are version controlled
+- Results documentation is version controlled
+- Consider using Git LFS for large data files if needed
+
+## Best Practices
+
+1. **Reproducibility**: Always use fixed random seeds for reproducible results
+2. **Documentation**: Document parameters and assumptions in scripts and notebooks
+3. **Data Validation**: Include sanity checks and validation in analysis scripts
+4. **Backup**: Archive important results in the `data/archive/` directory
+5. **Naming**: Use clear, descriptive names for all files 

@@ -29,6 +29,7 @@ def setup_project_imports():
         current_dir,                                    # Run from project root
         os.path.dirname(current_dir),                   # Run from analysis/ subdirectory  
         os.path.dirname(os.path.dirname(current_dir)),  # Run from deeper subdirectory
+        os.path.dirname(os.path.dirname(os.path.dirname(current_dir))),  # Run from analysis/scripts/
     ]
     
     for search_dir in search_paths:
