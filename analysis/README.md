@@ -61,7 +61,13 @@ When creating new data files, use descriptive names that include:
 - Timestamp (e.g., `2024-01-15_14-30`)
 - Description (e.g., `sexual_vs_asexual_comparison`)
 
-Example: `sexual_vs_asexual_pop100_gen20_mut0.005_2024-01-15_14-30.csv`
+Example: `sexual_vs_asexual_weak_selection_pop100_gen20_mut0.005_gens100_runs100_2024-01-15_14-30.csv`
+
+**Current Implementation:**
+The `sexual_vs_asexual_analysis.py` script automatically generates descriptive filenames using the format:
+`sexual_vs_asexual_{fitness_regime}_{pop_size}_gen{genome_length}_mut{mutation_rate}_gens{generations}_runs{n_runs}_{timestamp}.csv`
+
+This prevents file clobbering and makes it easy to identify the parameters used for each simulation run.
 
 ## Import Handling
 

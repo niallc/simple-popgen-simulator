@@ -56,7 +56,7 @@ simulation.py → population.py → genome.py
 | File | Purpose | Status | Usage |
 |------|---------|--------|-------|
 | `sexual_vs_asexual_analysis.py` | **Main analysis script** - runs 100 simulations | ✅ **ACTIVE** | Primary analysis tool |
-| `sexual_vs_asexual_results.csv` | **Results data** - 6,600 data points | ✅ **ACTIVE** | Output from main analysis |
+| `sexual_vs_asexual_*.csv` | **Results data** - 6,600 data points | ✅ **ACTIVE** | Output from main analysis (timestamped) |
 | `import_utils.py` | **Import utility** - robust module imports | ✅ **ACTIVE** | Used by analysis scripts |
 | `quick_test.py` | **Utility script** - quick 10-run tests | ✅ **ACTIVE** | Development/testing tool |
 
@@ -144,7 +144,7 @@ simulation.py → population.py → genome.py
 1. **All core library files** (`src/`)
 2. **All test files** (`tests/`)
 3. **Main analysis files** (`sexual_vs_asexual_analysis.py`, `import_utils.py`)
-4. **Results data** (`sexual_vs_asexual_results.csv`)
+4. **Results data** (`sexual_vs_asexual_*.csv` - timestamped files)
 5. **Documentation** (`README.md`, `glossary.md`, `EvolutionSimulatorPlan.md`)
 6. **Project files** (`requirements.txt`, `.gitignore`, `LICENSE`)
 

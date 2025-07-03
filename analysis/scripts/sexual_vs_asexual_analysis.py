@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from scipy import stats
 import time
 from typing import Dict, List, Tuple, Any
+from datetime import datetime
+import os
 
 # Robust import setup
 try:
@@ -340,6 +342,38 @@ class SexualVsAsexualAnalyzer:
         
         return df
 
+def generate_filename(analyzer, fitness_name: str) -> str:
+    """
+    Generate a descriptive filename with parameters and timestamp.
+    
+    Args:
+        analyzer: SexualVsAsexualAnalyzer instance
+        fitness_name: Name of the fitness regime
+        
+    Returns:
+        str: Descriptive filename
+    """
+    # Extract key parameters
+    pop_size = analyzer.params['population_size']
+    genome_len = analyzer.params['genome_length']
+    mut_rate = analyzer.params['mutation_rate']
+    generations = analyzer.params['generations']
+    n_runs = analyzer.n_runs
+    
+    # Create parameter string
+    param_str = f"pop{pop_size}_gen{genome_len}_mut{mut_rate:.3f}_gens{generations}_runs{n_runs}"
+    
+    # Create timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    
+    # Create fitness regime string (sanitized for filename)
+    fitness_str = fitness_name.lower().replace(" ", "_").replace("-", "_")
+    
+    # Combine into filename
+    filename = f"sexual_vs_asexual_{fitness_str}_{param_str}_{timestamp}.csv"
+    
+    return filename
+
 def main():
     """Main function to run the analysis."""
     
@@ -372,8 +406,15 @@ def main():
     # Combine all results
     df_combined = pd.concat([df_weak, df_additive, df_neutral], ignore_index=True)
     
+    # Create output directory if it doesn't exist
+    output_dir = "data/sexual_vs_asexual"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Generate descriptive filename
+    filename = generate_filename(analyzer, "comprehensive")
+    output_file = os.path.join(output_dir, filename)
+    
     # Save results
-    output_file = "data/sexual_vs_asexual/sexual_vs_asexual_results.csv"
     df_combined.to_csv(output_file, index=False)
     print(f"\n✅ Results saved to: {output_file}")
     print(f"DataFrame shape: {df_combined.shape}")
